@@ -1,0 +1,730 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>You Are Here</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Martian+Mono:wght@300..500&display=swap">
+<style>
+/* Layout: one night sky. Short title, then a sky you can zoom from Pakistan out to Andromeda, across the full width, then the life line of 100 marks, facts and theory. Single dark look by choice. */
+:root {
+  color-scheme: dark;
+  --sky: #05060f;
+  --sky-2: #0d1230;
+  --bone: #ece4d0;
+  --dim: #8f93b3;
+  --sun: #ffb24a;
+  --sun-core: #fff6dc;
+  --earth: #3f8fe8;
+  --rule: #2a3058;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --mono: "Martian Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+body {
+  background: var(--sky);
+  color: var(--bone);
+  font-family: var(--display);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  padding-block: clamp(1.5rem, 5vw, 4rem);
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}
+.page { max-width: 72rem; margin-inline: auto; display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem); }
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem clamp(1.5rem, 4vw, 4rem); align-items: end; }
+.intro > div { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.label { font-family: var(--mono); font-size: .6875rem; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+h1 { font-weight: 300; font-size: clamp(2.75rem, 7vw, 4.5rem); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h1 em { color: var(--sun); font-weight: 400; }
+h2 { font-weight: 300; font-style: italic; font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.05; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 34em; }
+.muted { color: var(--dim); }
+.scene { display: flex; flex-direction: column; gap: 1rem; }
+.sky { width: 100%; aspect-ratio: 9 / 5; border-radius: 4px; overflow: hidden;
+  background: radial-gradient(70% 90% at 50% 50%, var(--sky-2), var(--sky) 75%); }
+.sky canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.sky canvas:active { cursor: grabbing; }
+.zoom { display: flex; flex-direction: column; gap: .5rem; }
+.zoom input { width: 100%; margin: 0; accent-color: var(--sun); }
+.zoom .stops { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; }
+.where { font-family: var(--mono); font-size: .75rem; color: var(--bone); max-width: none; min-height: 1.5em; }
+.controls { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center; justify-content: space-between; }
+.controls .group { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.controls .hint { font-family: var(--mono); font-size: .6875rem; color: var(--dim); }
+button { font-family: var(--mono); font-size: .75rem; color: var(--bone); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: .5rem .9rem; cursor: pointer; }
+button:hover { border-color: var(--dim); }
+button[aria-pressed="true"] { background: var(--bone); color: var(--sky); border-color: var(--bone); }
+button:focus-visible, canvas:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.life { display: flex; flex-direction: column; gap: .75rem; border-top: 1px solid var(--rule); padding-top: 1.5rem; }
+.life .marks { display: flex; gap: 1px; height: 2.25rem; }
+.life .marks i { flex: 1; min-width: 0; border-radius: 1px; background: var(--bone); }
+.life .marks i.done { background: var(--sun); }
+.life .marks i.now { background: var(--earth); }
+.life .ticks { position: relative; height: 2.6em; font-family: var(--mono); font-size: .6875rem; line-height: 1.3; color: var(--dim); font-variant-numeric: tabular-nums; }
+.life .ticks span { position: absolute; top: 0; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+.life .ticks span:first-child { transform: none; text-align: left; }
+.life .ticks span:last-child { transform: translateX(-100%); text-align: right; }
+.life .ticks b { display: block; font-weight: 400; color: var(--bone); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1.25rem 2rem; border-top: 1px solid var(--rule); padding-top: 1.5rem; margin: 0; }
+.facts div { display: flex; flex-direction: column; gap: .25rem; }
+.facts dt { order: 2; font-family: var(--mono); font-size: .6875rem; letter-spacing: .06em; color: var(--dim); line-height: 1.5; }
+.facts dd { margin: 0; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.theory { display: flex; flex-direction: column; gap: 1.25rem; border-top: 1px solid var(--rule); padding-top: clamp(2rem, 5vw, 4rem); }
+.theory .words { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+/* one line per second: born at the mouth on the left, pushed right and dimmed until gone (drawn right-to-left, then mirrored) */
+.eaten { position: relative; height: 4.5rem; overflow: hidden; transform: scaleX(-1);
+  -webkit-mask: linear-gradient(90deg, transparent 2%, #000 100%); mask: linear-gradient(90deg, transparent 2%, #000 100%); }
+.eaten .lines { position: absolute; top: 22%; bottom: 22%; left: 0; width: calc(100% + 16px);
+  background: repeating-linear-gradient(270deg, var(--bone) 0 2px, transparent 2px 16px);
+  animation: swallow 1s infinite; }
+.eaten::after { content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: 3px; background: var(--sun); }
+@keyframes swallow { 0% { transform: translateX(0); } 40%, 100% { transform: translateX(-16px); } }
+.eaten-key { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--mono); font-size: .6875rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+.eaten-key b { font-weight: 400; color: var(--sun); }
+.note { font-family: var(--mono); font-size: .6875rem; line-height: 1.7; color: var(--dim); max-width: 60em; }
+@media (max-width: 760px) {
+  .intro { grid-template-columns: minmax(0, 1fr); }
+  .sky { aspect-ratio: 1 / 1; }
+  .life .marks { gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .eaten .lines { animation: none; } }
+</style>
+
+<main class="page">
+  <section class="intro">
+    <div>
+      <span class="label">A life, counted in orbits</span>
+      <h1>You are <em>here</em>.</h1>
+    </div>
+    <div>
+      <p>Every year of your life is one trip around the sun, on a small planet, third out from an ordinary star, carrying everyone who has ever lived. You did not choose to board it, and it will not stop to let you off.</p>
+      <p class="muted">Zoom in until you find a single path across a single yard. Zoom out until the sun is one grain among billions. Both are true at once, and you are somewhere in between.</p>
+    </div>
+  </section>
+
+  <section class="scene">
+    <div class="sky"><canvas id="sky" tabindex="0" role="img" aria-label="A sky you can zoom through seven views: a street map of a place in Pakistan, a map of the wider region of Pakistan around it, the Earth, the Earth and Moon, the solar system, the Milky Way with the Sun marked, and the Milky Way beside the Andromeda galaxy. Drag or use the arrow keys to turn the view."></canvas></div>
+    <p class="where" id="where" aria-live="polite"></p>
+    <p class="hint" id="mapnote" style="font-family:var(--mono);font-size:.6875rem;color:var(--dim);max-width:none"></p>
+    <div class="zoom">
+      <input type="range" id="zoom" min="0" max="6" step="0.01" value="4" aria-label="Zoom, from Pakistan on the left out to Andromeda on the right">
+      <div class="stops" id="stops">
+        <button type="button" id="stop-0">Pakistan</button>
+        <button type="button" id="stop-1">Pakistan (region)</button>
+        <button type="button" id="stop-2">Earth</button>
+        <button type="button" id="stop-3">Moon</button>
+        <button type="button" id="stop-4">Solar system</button>
+        <button type="button" id="stop-5">Milky Way</button>
+        <button type="button" id="stop-6">Andromeda</button>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="group" id="views">
+        <button type="button" id="view-above" data-el="1.5708" aria-pressed="false">From above</button>
+        <button type="button" id="view-tilted" data-el="0.5" aria-pressed="true">Tilted</button>
+        <button type="button" id="view-side" data-el="0.12" aria-pressed="false">From the side</button>
+      </div>
+      <div class="group">
+        <span class="hint">Drag to turn the solar system and the galaxy</span>
+        <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+        <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="life">
+    <span class="label">A hundred trips, if you are lucky. Each mark is one, and each is fainter than the last</span>
+    <div class="marks" id="marks" role="img" aria-label="100 marks, one per year of a life. They start bright and fade steadily with the odds of still being alive, and are almost invisible by 100."></div>
+    <div class="ticks" id="ticks"></div>
+  </section>
+
+  <dl class="facts">
+    <div><dd>940 M</dd><dt>km in one trip around the sun, whether or not you noticed it</dt></div>
+    <div><dd>107,000</dd><dt>km/h, the speed you are moving right now while feeling still</dt></div>
+    <div><dd id="median">83</dd><dt>the age by which half of us have stepped off</dt></div>
+    <div><dd id="p100">3%</dd><dt>of us are still aboard for trip 100</dt></div>
+  </dl>
+
+  <section class="theory">
+    <span class="label">The theory</span>
+    <h2>Time eats itself.</h2>
+    <div class="eaten" role="img" aria-label="A row of lines, one per second. Each second a new line appears at a gold mark on the left, the present, and the older lines shift right and dim until they disappear."><div class="lines"></div></div>
+    <div class="eaten-key"><span><b>now, the mouth</b> · <span id="eaten">0</span> seconds eaten since you opened this page</span><span>gone</span></div>
+    <div class="words">
+      <p>The present is the mouth. It swallows the next moment, and what is left behind is the past. Nothing is stored. The only time that exists is the piece being eaten right now.</p>
+      <p>So everything I do is food for it. The work, the plans, the waiting. I cannot save any of it. I can only choose what it eats.</p>
+    </div>
+  </section>
+
+  <p class="note">How the fading is worked out: a standard mortality curve (Gompertz–Makeham), where the yearly risk of death roughly doubles every seven years, set to match typical life tables for a wealthy country. It is an average over many people. It knows nothing about any one person, so read it as the shape of the odds and not a prediction. One orbit is taken as 940 million km. In the picture the planets keep their real order and relative speeds, with Earth taking one minute per lap. Distances and sizes are squeezed so everything fits; at true scale the planets would be invisible specks. The street map is drawn live from OpenStreetMap data (fetched through the Overpass API when the page opens), so it stays sharp however far you zoom in and shows exactly what mappers have recorded around this part of Pakistan, which in places is sparse. The Earth, Moon, planets and star field use real imagery and are rendered at your screen's resolution. The Milky Way is NASA's illustration, because nobody has photographed our galaxy from outside. Andromeda is a real photograph. The Earth and Moon view is to scale; the jumps in size between views are compressed, since the real ones are far larger. Credits: map data © OpenStreetMap contributors (ODbL). Planet, Earth, Moon, Sun and star textures by Solar System Scope (CC BY 4.0), built on NASA data. Milky Way: NASA/JPL-Caltech/R. Hurt. Andromeda: Adam Evans (CC BY 2.0).</p>
+</main>
+
+<script>
+const NOW = 0, END = 100, A = 0.0003, B = 0.000016, C = 0.1;
+// chance of still being alive at age x, given alive at NOW
+const alive = x => x <= NOW ? 1 : Math.exp(-(A * (x - NOW) + B / C * (Math.exp(C * x) - Math.exp(C * NOW))));
+const pct = x => Math.round(alive(x) * 100) + '%';
+
+let median = NOW;
+while (alive(median) > 0.5) median += 0.1;
+median = Math.round(median);
+document.getElementById('median').textContent = median;
+document.getElementById('p100').textContent = pct(END);
+
+// the life line: one mark per trip
+let marks = '';
+for (let i = 0; i < END; i++) marks += `<i style="opacity:${Math.max(0.04, alive(i + 0.5)).toFixed(3)}"></i>`;
+document.getElementById('marks').innerHTML = marks;
+document.getElementById('ticks').innerHTML = [[0, 'born'], [25], [50], [70], [median], [END]]
+  .map(([x, t]) => `<span style="left:${x}%"><b>${x}</b>${t || pct(x)}</span>`).join('');
+
+const opened = Date.now();
+setInterval(() => { document.getElementById('eaten').textContent = Math.floor((Date.now() - opened) / 1000); }, 1000);
+
+// ---- the sky. Seven views nested inside each other, built from real map data and real imagery.
+const canvas = document.getElementById('sky');
+const mk = () => document.createElement('canvas');
+const stars = mk(), layer = mk(), mapCanvas = mk();
+const main = canvas.getContext('2d'), lctx = layer.getContext('2d'), mctx = mapCanvas.getContext('2d');
+let ctx = main;
+const css = getComputedStyle(document.documentElement);
+const col = n => css.getPropertyValue(n).trim();
+const T = { bone: col('--bone'), dim: col('--dim'), sun: col('--sun'), core: col('--sun-core'), earth: col('--earth'), mono: col('--mono') };
+const TAU = 2 * Math.PI, D2R = Math.PI / 180;
+const ease = t => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
+let seed = 32; // same asteroids every time
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cam = { yaw: -0.7, el: 0.5 };
+let goalEl = null, level = 4, goalLevel = null, W = 0, H = 0, base = 0, dpr = 1;
+
+const label = (text, x, y, color, align) => {
+  ctx.globalAlpha = 1; ctx.font = `${W < 480 ? 8.5 : 10}px ${T.mono}`; ctx.textBaseline = 'middle'; ctx.textAlign = align || 'left';
+  ctx.fillStyle = color; ctx.fillText(text, x, y);
+};
+const marker = (x, y, text, align) => {
+  ctx.globalAlpha = 1; ctx.fillStyle = T.sun; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill();
+  ctx.globalAlpha = 0.6; ctx.strokeStyle = T.sun; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.stroke();
+  if (text) label(text, x + (align === 'right' ? -12 : 12), y, T.bone, align);
+};
+const readable = S => S > 0.55 && S < 1.9; // only label a view when it is close to its home size
+
+// ---- turning images into things to draw
+function texture(im) {
+  const c = mk(); c.width = im.naturalWidth; c.height = im.naturalHeight;
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(im, 0, 0);
+  return g.getImageData(0, 0, c.width, c.height);
+}
+// wrap a flat world map onto a ball, seen from above longitude lon0 and latitude lat0 (radians)
+function buildSphere(tex, D, lon0, lat0) {
+  const c = mk(); c.width = c.height = D;
+  const g = c.getContext('2d'), out = g.createImageData(D, D), o = out.data, t = tex.data, tw = tex.width, th = tex.height;
+  const R = D / 2, s0 = Math.sin(lat0), c0 = Math.cos(lat0);
+  for (let j = 0; j < D; j++) {
+    const y = (R - j - 0.5) / R;
+    for (let i = 0; i < D; i++) {
+      const x = (i + 0.5 - R) / R, r2 = x * x + y * y;
+      if (r2 >= 1) continue;
+      const z = Math.sqrt(1 - r2), lat = Math.asin(z * s0 + y * c0), lon = lon0 + Math.atan2(x, z * c0 - y * s0);
+      const u = ((lon / TAU + 0.5) % 1 + 1) % 1 * tw - 0.5, v = Math.min(th - 1.001, Math.max(0, (0.5 - lat / Math.PI) * th - 0.5));
+      const u0 = Math.floor(u), v0 = Math.floor(v), fu = u - u0, fv = v - v0;
+      const a = ((u0 + tw) % tw + v0 * tw) * 4, b = ((u0 + 1 + tw) % tw + v0 * tw) * 4, a2 = a + tw * 4, b2 = b + tw * 4, k = (i + j * D) * 4;
+      for (let ch = 0; ch < 3; ch++) o[k + ch] = (t[a + ch] * (1 - fu) + t[b + ch] * fu) * (1 - fv) + (t[a2 + ch] * (1 - fu) + t[b2 + ch] * fu) * fv;
+      o[k + 3] = Math.min(1, (1 - Math.sqrt(r2)) * R) * 255;
+    }
+  }
+  g.putImageData(out, 0, 0);
+  return c;
+}
+// a photo on black becomes light on nothing, so it can sit on any sky; tilt/squash trims it to an ellipse
+function glow(im, sx, sy, side, tilt, squash) {
+  const D = Math.min(1400, Math.round(side)), c = mk(); c.width = c.height = D;
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(im, sx, sy, side, side, 0, 0, D, D);
+  const d = g.getImageData(0, 0, D, D), p = d.data, ct = Math.cos(tilt || 0), st = Math.sin(tilt || 0);
+  for (let j = 0, k = 0; j < D; j++) for (let i = 0; i < D; i++, k += 4) {
+    const m = Math.max(p[k], p[k + 1], p[k + 2]);
+    const a0 = Math.min(255, m * 1.7);
+    const dx = i / D * 2 - 1, dy = j / D * 2 - 1, u = dx * ct + dy * st, v = (dy * ct - dx * st) / (squash || 1);
+    if (a0 > 0) { const f = 255 / a0; p[k] *= f; p[k + 1] *= f; p[k + 2] *= f; }
+    p[k + 3] = a0 * (1 - ease((Math.hypot(u, v) - 0.78) / 0.22));
+  }
+  g.putImageData(d, 0, 0);
+  return c;
+}
+// draw only the part of a very large picture that lands on screen
+function drawBig(img, dx, dy, dw, dh) {
+  const x0 = Math.max(0, dx), y0 = Math.max(0, dy), x1 = Math.min(W, dx + dw), y1 = Math.min(H, dy + dh);
+  if (x1 <= x0 || y1 <= y0) return;
+  ctx.drawImage(img, (x0 - dx) / dw * img.width, (y0 - dy) / dh * img.height, (x1 - x0) / dw * img.width, (y1 - y0) / dh * img.height, x0, y0, x1 - x0, y1 - y0);
+}
+
+const SPRITE = {};
+let earthTex = null, globe = null, starsImg = null, mw = null, andro = null, MAP = null, mapKey = '';
+const GLOBE_R = 0.38, MOON_R = 0.42, G0 = [62 * D2R, 26 * D2R];
+function buildGlobe() {
+  if (!earthTex || !base) return;
+  const D = Math.min(1500, Math.ceil(2 * GLOBE_R * base * dpr));
+  if (!globe || globe.width !== D) globe = buildSphere(earthTex, D, G0[0], G0[1]);
+}
+function buildStars() {
+  if (!W) return;
+  const s = stars.getContext('2d');
+  s.setTransform(dpr, 0, 0, dpr, 0, 0); s.globalAlpha = 1; s.clearRect(0, 0, W, H);
+  if (starsImg) { // the real night sky, with the band of the Milky Way across the upper part
+    const dw = Math.max(1.5 * W, 2.6 * H), dh = dw / 2;
+    s.drawImage(starsImg, (W - dw) / 2, H * 0.36 - dh / 2, dw, dh);
+    s.fillStyle = 'rgba(5,6,15,0.3)'; s.fillRect(0, 0, W, H);
+    return;
+  }
+  let n = 7; const r = () => (n = (n * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < W * H / 900; i++) {
+    s.fillStyle = ['#ffffff', '#ffe9c4', '#cfdcff'][i % 3]; s.globalAlpha = 0.12 + r() * 0.6;
+    s.beginPath(); s.arc(r() * W, r() * H, r() < 0.06 ? 1.2 : 0.5, 0, 7); s.fill();
+  }
+}
+function load(name, then) { const im = new Image(); im.onload = () => { then(im); redraw(); }; im.src = 'assets/' + name + '.jpg'; }
+for (const n of ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'moon', 'sun']) load(n, im => { SPRITE[n] = buildSphere(texture(im), 160, 1, 0.35); });
+load('earth', im => { earthTex = texture(im); buildGlobe(); });
+load('stars', im => { starsImg = im; buildStars(); });
+load('milkyway', im => { mw = glow(im, 0, 0, im.naturalWidth); });
+load('andromeda', im => { const cx = im.naturalWidth * 0.508, cy = im.naturalHeight * 0.51, side = Math.floor(2 * Math.min(cy, im.naturalHeight - cy)); andro = glow(im, cx - side / 2, cy - side / 2, side, 0.59, 0.4); });
+
+// ---- views 0 and 1: Mana Ahmadani and the Dera Ghazi Khan region, drawn from OpenStreetMap data
+const MAP_X0 = 70.25, MAP_Y0 = 29.70, LONK = Math.cos(29.8 * Math.PI / 180); // map units are degrees of latitude north and east of the south-west corner
+const MX = lon => (lon - MAP_X0) * LONK, MY = lat => lat - MAP_Y0;
+const CANDIDATES = [ // tried in order; the first one with enough OpenStreetMap detail becomes the home view
+  { name: 'Pakistan', lon: 70.58417, lat: 29.79944 },
+  { name: 'Pakistan', lon: 70.6455, lat: 30.0489 },
+];
+let HOME = [CANDIDATES[0].lon, CANDIDATES[0].lat]; // lon, lat of the place the first two views are centred on
+const CM = [MX(70.62), MY(29.91)], YARD_K = 60;
+let HV = [MX(HOME[0]), MY(HOME[1])];
+const CITY_W = 0.55, CITY_H = 0.30; // how much of the region (map units) fills the screen at the Dera Ghazi Khan view
+function decodeMap(d) {
+  const dec = a => {
+    const p = new Float32Array(a.length); let x = 0, y = 0, bx0 = 1e9, by0 = 1e9, bx1 = -1e9, by1 = -1e9;
+    for (let i = 0; i < a.length; i += 2) {
+      x += a[i]; y += a[i + 1];
+      const px = p[i] = x / d.q * LONK, py = p[i + 1] = y / d.q;
+      if (px < bx0) bx0 = px; if (px > bx1) bx1 = px; if (py < by0) by0 = py; if (py > by1) by1 = py;
+    }
+    return { p, bx0, by0, bx1, by1 };
+  };
+  const m = { names: d.names.map(([n, x, y]) => [n, x / d.q * LONK, y / d.q]), places: d.places.map(([n, x, y]) => [n, x / d.q * LONK, y / d.q]) };
+  for (const k of ['land', 'water', 'green', 'buildings', 'paths']) m[k] = d[k].map(dec);
+  for (const k in d.roads) m[k] = d.roads[k].map(dec);
+  return m;
+}
+// ---- live OpenStreetMap data, fetched once through the Overpass API and turned into the compact form the drawing code uses
+let mapError = '';
+const BOX = (s, w, n, e) => `(${s},${w},${n},${e})`;
+const R_BOX = BOX(29.70, 70.25, 30.16, 71.00);
+const overpassFor = pl => {
+  const L_BOX = BOX(pl.lat - 0.08, pl.lon - 0.085, pl.lat + 0.08, pl.lon + 0.085), C_BOX = BOX(pl.lat - 0.04, pl.lon - 0.04, pl.lat + 0.04, pl.lon + 0.04);
+  return `[out:json][timeout:90];(
+ way["highway"~"^(motorway|trunk|primary|secondary|tertiary)(_link)?$"]${R_BOX};
+ way["railway"="rail"]${R_BOX}; way["aeroway"="runway"]${R_BOX};
+ way["waterway"~"^(river|canal|riverbank)$"]${R_BOX}; way["natural"="water"]${R_BOX};
+ way["highway"]${L_BOX}; way["waterway"~"^(stream|drain|ditch|canal|river)$"]${L_BOX};
+ way["landuse"~"^(farmland|forest|meadow|orchard|grass|village_green|recreation_ground|cemetery|basin)$"]${L_BOX};
+ way["natural"~"^(wood|scrub|grassland)$"]${L_BOX}; way["leisure"~"^(park|garden|pitch)$"]${L_BOX};
+ way["building"]${C_BOX};
+);out geom qt;(
+ node["name"]["place"~"^(city|town|village)$"]${R_BOX};
+ node["name"]["place"~"^(hamlet|suburb|neighbourhood|locality|isolated_dwelling)$"]${L_BOX};
+ node["name"]["amenity"~"^(school|college|university|mosque|hospital|clinic|bank|marketplace)$"]${L_BOX};
+);out;`;
+};
+const ENDPOINTS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
+function buildMap(elements) {
+  const q = 1e5, seen = new Set();
+  const d = { q, land: [], water: [], green: [], buildings: [], paths: [], names: [], places: [],
+    roads: { major: [], mid: [], small: [], minor: [], rail: [], runway: [], stream: [] } };
+  const enc = g => { const o = []; let px = 0, py = 0; for (const p of g) { const x = Math.round((p.lon - MAP_X0) * q), y = Math.round((p.lat - MAP_Y0) * q); o.push(x - px, y - py); px = x; py = y; } return o; };
+  const closed = g => g.length > 3 && g[0].lat === g[g.length - 1].lat && g[0].lon === g[g.length - 1].lon;
+  const label = t => t['name:en'] || t.name;
+  for (const e of elements) {
+    const t = e.tags || {};
+    if (e.type === 'node') {
+      if (!e.lat || !t.name) continue;
+      const row = [label(t), Math.round((e.lon - MAP_X0) * q), Math.round((e.lat - MAP_Y0) * q)];
+      if (['city', 'town', 'village'].includes(t.place)) d.places.push(row);
+      d.names.push(row);
+      continue;
+    }
+    if (e.type !== 'way' || !e.geometry || e.geometry.length < 2 || seen.has(e.id)) continue;
+    seen.add(e.id);
+    const g = e.geometry, h = t.highway;
+    if (t.building) { d.buildings.push(enc(g)); continue; }
+    if (h) {
+      if (/^(motorway|trunk|primary)/.test(h)) d.roads.major.push(enc(g));
+      else if (/^(secondary|tertiary)/.test(h)) d.roads.mid.push(enc(g));
+      else if (h === 'unclassified' || h === 'residential') d.roads.small.push(enc(g));
+      else if (/^(footway|path|steps|pedestrian|cycleway|bridleway|corridor)$/.test(h)) d.paths.push(enc(g));
+      else d.roads.minor.push(enc(g));
+    } else if (t.railway === 'rail') d.roads.rail.push(enc(g));
+    else if (t.aeroway === 'runway') d.roads.runway.push(enc(g));
+    else if (t.natural === 'water' || t.waterway === 'riverbank') { if (closed(g)) d.water.push(enc(g)); }
+    else if (t.waterway) d.roads.stream.push(enc(g));
+    else if (closed(g)) d.green.push(enc(g));
+  }
+  return d;
+}
+async function fetchMap(pl) {
+  let lastErr = '';
+  for (const url of ENDPOINTS) {
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(overpassFor(pl)) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return buildMap((await r.json()).elements || []);
+    } catch (err) { lastErr = String(err.message || err); }
+  }
+  throw new Error(lastErr);
+}
+const detail = d => d.buildings.length + d.roads.small.length + d.roads.minor.length + d.roads.mid.length; // how much is mapped near the place
+function useHome(pl) {
+  HOME = [pl.lon, pl.lat]; HV = [MX(pl.lon), MY(pl.lat)]; HOMEPT = ortho(pl.lon, pl.lat);
+  document.getElementById('stop-0').textContent = pl.name;
+  document.getElementById('zoom').setAttribute('aria-label', 'Zoom, from ' + pl.name + ' on the left out to Andromeda on the right');
+}
+async function loadMap() {
+  let note = '', lastErr = '';
+  for (let i = 0; i < CANDIDATES.length; i++) {
+    const pl = CANDIDATES[i];
+    try {
+      const d = await fetchMap(pl);
+      if (detail(d) < 15 && i < CANDIDATES.length - 1) { note = 'This spot has very little detail on OpenStreetMap, so this view is centred on a nearby city instead.'; continue; }
+      useHome(pl); MAP = decodeMap(d); mapError = ''; mapKey = ''; shown = -1;
+      document.getElementById('mapnote').textContent = note; redraw(); return;
+    } catch (err) { lastErr = String(err.message || err); break; }
+  }
+  mapError = 'the map could not be loaded (' + lastErr + ')'; mapKey = ''; redraw();
+}
+loadMap();
+const cityP = () => Math.max(W / CITY_W, H / CITY_H); // pixels per degree of latitude when the whole city is in view
+
+// (ox, oy) is where the centre of the city lands on screen; P is pixels per degree of latitude
+function drawMap(ox, oy, P, clipR) {
+  const key = [ox, oy, P, W, H].join();
+  if (key !== mapKey) { // the map only changes while zooming, so keep the last drawing
+    mapKey = key;
+    const target = ctx, g = ctx = mctx, mpp = 111200 / P;
+    const sx = x => ox + (x - CM[0]) * P, sy = y => oy - (y - CM[1]) * P;
+    const x0 = CM[0] - ox / P, x1 = CM[0] + (W - ox) / P, y1 = CM[1] + oy / P, y0 = CM[1] - (H - oy) / P;
+    const trace = (list, closed) => {
+      g.beginPath();
+      for (const f of list) {
+        if (f.bx1 < x0 || f.bx0 > x1 || f.by1 < y0 || f.by0 > y1) continue;
+        const p = f.p; g.moveTo(sx(p[0]), sy(p[1]));
+        for (let i = 2; i < p.length; i += 2) g.lineTo(sx(p[i]), sy(p[i + 1]));
+        if (closed) g.closePath();
+      }
+    };
+    const fill = (list, color) => { trace(list, true); g.fillStyle = color; g.fill(); };
+    const stroke = (list, color, metres, min) => { trace(list); g.strokeStyle = color; g.lineWidth = Math.max(min, metres / mpp); g.stroke(); };
+    g.globalAlpha = 1; g.lineCap = g.lineJoin = 'round'; g.setLineDash([]);
+    g.fillStyle = '#191e2a'; g.fillRect(0, 0, W, H);
+    if (MAP) {
+      fill(MAP.green, '#16301f'); fill(MAP.water, '#0d2747'); stroke(MAP.stream, '#17487c', 8, 0.8);
+      stroke(MAP.runway, '#343c50', 45, 1.5);
+      if (mpp < 3) stroke(MAP.paths, '#333b50', 2, 0.6);
+      if (mpp < 26) stroke(MAP.minor, '#2e3649', 7, 0.6);
+      stroke(MAP.small, '#394257', 8, 0.8);
+      g.setLineDash([4, 3]); stroke(MAP.rail, '#4a4658', 3, 0.8); g.setLineDash([]);
+      stroke(MAP.mid, '#4b5469', 10, 1.1);
+      stroke(MAP.major, '#8a7347', 14, 1.6);
+      if (mpp < 5) { fill(MAP.buildings, '#2f3852'); if (mpp < 1.6) { g.strokeStyle = '#46506e'; g.lineWidth = 0.7; g.stroke(); } }
+      const hx = sx(HV[0]), hy = sy(HV[1]);
+      if (mpp < 2.2) {
+        for (const [name, x, y] of MAP.names) label(name, sx(x), sy(y), T.bone, 'center');
+        label('YOU ARE HERE', hx, hy, T.sun, 'center');
+      } else if (mpp < 60) {
+        if (mpp > 8) {
+          for (const [name, x, y] of MAP.places) { const qx = sx(x), qy = sy(y); g.fillStyle = T.bone; g.globalAlpha = 0.9; g.beginPath(); g.arc(qx, qy, 2.5, 0, 7); g.fill(); label(name, qx + 8, qy, T.bone); }
+        }
+        marker(hx, hy, 'you are here', 'right');
+      }
+      const metres = mpp < 2.2 ? 100 : mpp < 9 ? 500 : 2000, len = mpp < 60 ? metres / mpp : 0;
+      if (len) {
+      g.strokeStyle = T.bone; g.lineWidth = 1.5; g.globalAlpha = 0.9;
+      g.beginPath(); g.moveTo(16, H - 18); g.lineTo(16 + len, H - 18); g.stroke();
+      label(metres < 1000 ? metres + ' m' : metres / 1000 + ' km', 22 + len, H - 18, T.bone);
+      label('© OpenStreetMap contributors', W - 12, H - 18, T.dim, 'right');
+      }
+    } else label(mapError || 'loading the map from OpenStreetMap', W / 2, H / 2, mapError ? T.sun : T.dim, 'center');
+    g.globalAlpha = 1; ctx = target;
+  }
+  ctx.save();
+  if (clipR) { ctx.beginPath(); ctx.arc(ox, oy, clipR, 0, 7); ctx.clip(); }
+  ctx.globalAlpha = 1; ctx.drawImage(mapCanvas, 0, 0, W, H);
+  ctx.restore();
+}
+function sceneCity(x, y, S) { drawMap(x, y, S * cityP(), S < 0.999 ? Math.hypot(W, H) / 2 * S : 0); }
+// one continuous zoom between the village (f = 0) and the whole region (f = 1)
+function sceneYard(f) {
+  const Pc = cityP(), P = Pc * Math.pow(YARD_K, 1 - f), g = ease(f);
+  const tx = W / 2 + (HV[0] - CM[0]) * Pc * g, ty = H / 2 - (HV[1] - CM[1]) * Pc * g; // where Mana Ahmadani sits on screen
+  drawMap(tx - (HV[0] - CM[0]) * P, ty + (HV[1] - CM[1]) * P, P, 0);
+}
+
+// ---- view 2: the Earth, centred over Asia
+function ortho(lon, lat) {
+  const l = lon * D2R - G0[0], p = lat * D2R, cp = Math.cos(p);
+  return [cp * Math.sin(l), -(Math.cos(G0[1]) * Math.sin(p) - Math.sin(G0[1]) * cp * Math.cos(l))];
+}
+let HOMEPT = ortho(HOME[0], HOME[1]);
+function drawGlobe(x, y, R, named) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  if (R > 3) {
+    const air = ctx.createRadialGradient(x, y, R * 0.97, x, y, R * 1.1);
+    air.addColorStop(0, 'rgba(120,180,255,0.5)'); air.addColorStop(1, 'rgba(120,180,255,0)');
+    ctx.fillStyle = air; ctx.beginPath(); ctx.arc(x, y, R * 1.1, 0, 7); ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(x, y, R, 0, 7); ctx.clip();
+  if (globe) drawBig(globe, x - R, y - R, 2 * R, 2 * R);
+  else { ctx.fillStyle = '#17539c'; ctx.fillRect(x - R, y - R, 2 * R, 2 * R); }
+  const g = ctx.createRadialGradient(x - R * 0.35, y - R * 0.35, 0, x - R * 0.35, y - R * 0.35, R * 1.9);
+  g.addColorStop(0, 'rgba(255,255,255,0.1)'); g.addColorStop(0.4, 'rgba(3,5,14,0)'); g.addColorStop(0.95, 'rgba(3,5,14,0.8)');
+  ctx.fillStyle = g; ctx.fillRect(Math.max(0, x - R), Math.max(0, y - R), Math.min(W, 2 * R), Math.min(H, 2 * R));
+  ctx.restore();
+  if (named) marker(x + HOMEPT[0] * R, y + HOMEPT[1] * R, 'you are here');
+}
+function sceneGlobe(x, y, S) { drawGlobe(x, y, GLOBE_R * base * S, readable(S)); }
+
+// a planet: its real surface, then daylight from the sun's side and night on the other
+function sphere(x, y, r, color, sx, sy, sprite) {
+  const d = Math.hypot(sx - x, sy - y) || 1, lx = x + (sx - x) / d * r * 0.7, ly = y + (sy - y) / d * r * 0.7;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.clip();
+  ctx.globalAlpha = 1;
+  if (sprite) ctx.drawImage(sprite, x - r, y - r, 2 * r, 2 * r);
+  else { ctx.fillStyle = color; ctx.fillRect(x - r, y - r, 2 * r, 2 * r); }
+  const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, r * 1.9);
+  g.addColorStop(0, 'rgba(255,255,255,0.18)'); g.addColorStop(0.3, 'rgba(3,5,14,0)'); g.addColorStop(0.85, 'rgba(3,5,14,0.93)');
+  ctx.fillStyle = g; ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+  ctx.restore();
+}
+
+// ---- view 3: Earth and Moon, sizes and distance to scale
+function sceneMoon(x, y, S, years) {
+  const Ro = MOON_R * base * S, a = years * 3 * TAU, mx = x + Ro * Math.cos(a), my = y + Ro * Math.sin(a) * 0.5;
+  ctx.globalAlpha = 0.35; ctx.strokeStyle = T.dim; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(x, y, Ro, Ro * 0.5, 0, 0, 7); ctx.stroke();
+  drawGlobe(x, y, Math.max(2, Ro / 60.3));
+  sphere(mx, my, Math.max(1.3, Ro * 0.2727 / 60.3), '#b9b6ae', mx - 1e4, my - 1e4, SPRITE.moon);
+  if (readable(S)) { label('you are here', x + Ro / 60.3 + 8, y, T.bone); label('Moon', mx + 8, my, T.bone); label('384,400 km apart', x, y - Ro * 0.5 - 12, T.dim, 'center'); }
+}
+
+// ---- view 4: the solar system. World: x,y is the plane of the orbits, z is up.
+const CAMD = 1700, SUNR = 17, EXTENT = 620;
+// name, orbit radius, period in years, drawn radius, fallback colour, starting angle
+const PLANETS = [
+  ['Mercury', 40, 0.241, 3.2, '#a39d94', 1.0],
+  ['Venus', 62, 0.615, 5.6, '#e3c27e', 4.1],
+  ['Earth', 88, 1, 6.2, T.earth, 0],
+  ['Mars', 115, 1.881, 4.4, '#c9603a', 2.6],
+  ['Jupiter', 170, 11.86, 13, '#d9b990', 5.3],
+  ['Saturn', 218, 29.46, 10.5, '#e2cc98', 0.4],
+  ['Uranus', 258, 84.01, 7.5, '#a5dbe2', 3.3],
+  ['Neptune', 292, 164.8, 7.2, '#4468d8', 1.9],
+];
+const BELT = Array.from({ length: 280 }, () => [134 + rnd() * 16, rnd() * TAU, (rnd() - 0.5) * 3]);
+let ox, oy, fit;
+const solarFit = () => Math.min(W / EXTENT, H / (EXTENT * Math.sin(cam.el) + 70)); // keeps Neptune's orbit in frame
+function project(x, y, z) {
+  const c = Math.cos(cam.yaw), s = Math.sin(cam.yaw), se = Math.sin(cam.el), ce = Math.cos(cam.el);
+  const x1 = x * c - y * s, y1 = x * s + y * c;
+  const depth = y1 * ce + z * se, k = fit * CAMD / (CAMD - depth);
+  return [ox + x1 * k, oy + (y1 * se - z * ce) * k, depth, k];
+}
+function earthOffset(years) { ox = oy = 0; fit = solarFit(); const a = years * TAU; return project(88 * Math.cos(a), 88 * Math.sin(a), 0); }
+
+function sceneSolar(x, y, S, years) {
+  ox = x; oy = y; fit = solarFit() * S;
+  const w = Math.min(2, Math.max(0.7, fit * 0.7)), named = readable(S);
+  const ringTilt = Math.max(0.08, Math.sin(cam.el));
+  const [sx, sy, sd, sk] = project(0, 0, 0);
+  const bodies = [], labels = [];
+
+  for (const [name, r] of PLANETS) {
+    ctx.globalAlpha = name === 'Earth' ? 0.55 : 0.28; ctx.strokeStyle = name === 'Earth' ? T.bone : T.dim; ctx.lineWidth = w;
+    ctx.beginPath();
+    for (let i = 0; i <= 120; i++) { const a = i / 120 * TAU, p = project(r * Math.cos(a), r * Math.sin(a), 0); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
+    ctx.stroke();
+  }
+  ctx.fillStyle = T.dim;
+  for (const [r, a0, z] of BELT) {
+    const a = a0 + years / 4.6 * TAU, p = project(r * Math.cos(a), r * Math.sin(a), z), s = Math.min(2, Math.max(0.8, p[3] * 0.9));
+    ctx.globalAlpha = 0.55; ctx.fillRect(p[0], p[1], s, s);
+  }
+  for (const [name, r, period, size, color, phase] of PLANETS) {
+    const a = phase + years / period * TAU, [px, py, d, k] = project(r * Math.cos(a), r * Math.sin(a), 0), pr = size * k;
+    if (name === 'Earth') {
+      // the stretch of this year's trip already covered
+      for (let i = 0; i < 30; i++) {
+        const p = project(r * Math.cos(a - i * 0.045), r * Math.sin(a - i * 0.045), 0), q = project(r * Math.cos(a - (i + 1) * 0.045), r * Math.sin(a - (i + 1) * 0.045), 0);
+        ctx.globalAlpha = 0.9 * (1 - i / 30); ctx.strokeStyle = T.earth; ctx.lineWidth = w * 2.2;
+        ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+      }
+      const ma = years * 13.4 * TAU, m = project(r * Math.cos(a) + 13 * Math.cos(ma), r * Math.sin(a) + 13 * Math.sin(ma), 0);
+      bodies.push([m[2], () => sphere(m[0], m[1], 1.9 * m[3], '#b9b6ae', sx, sy, SPRITE.moon)]);
+    }
+    bodies.push([d, () => {
+      const ring = (from, to) => { for (const [f, lw, al] of [[1.55, 2.2, 0.85], [2.05, 3.4, 0.6]]) { ctx.globalAlpha = al; ctx.strokeStyle = color; ctx.lineWidth = lw * k; ctx.beginPath(); ctx.ellipse(px, py, pr * f, pr * f * ringTilt, 0, from, to); ctx.stroke(); } };
+      if (name === 'Saturn') ring(Math.PI, TAU); // far half of the rings, behind the planet
+      if (name === 'Earth') { ctx.globalAlpha = 0.22; ctx.fillStyle = T.earth; ctx.beginPath(); ctx.arc(px, py, pr * 1.6, 0, 7); ctx.fill(); }
+      sphere(px, py, pr, color, sx, sy, name === 'Earth' ? globe : SPRITE[name.toLowerCase()]);
+      if (name === 'Saturn') ring(0, Math.PI);
+    }]);
+    labels.push([name === 'Earth' ? 'you are here' : name, px + pr * (name === 'Saturn' ? 2.3 : 1) + 6, py, name === 'Earth' ? T.bone : T.dim]);
+  }
+  bodies.push([sd, () => {
+    const R = SUNR * sk, halo = ctx.createRadialGradient(sx, sy, R * 0.8, sx, sy, R * 7);
+    halo.addColorStop(0, T.sun); halo.addColorStop(0.25, 'rgba(255,150,50,0.35)'); halo.addColorStop(1, 'rgba(255,150,50,0)');
+    ctx.globalAlpha = 0.55; ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(sx, sy, R * 7, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1;
+    if (SPRITE.sun) ctx.drawImage(SPRITE.sun, sx - R, sy - R, 2 * R, 2 * R);
+    const disc = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 1.2);
+    disc.addColorStop(0, 'rgba(255,255,255,0.95)'); disc.addColorStop(0.45, 'rgba(255,246,220,0.6)'); disc.addColorStop(0.85, 'rgba(255,178,74,0.45)'); disc.addColorStop(1, 'rgba(255,150,50,0)');
+    ctx.fillStyle = disc; ctx.beginPath(); ctx.arc(sx, sy, R * 1.2, 0, 7); ctx.fill();
+  }]);
+  bodies.sort((p, q) => p[0] - q[0]).forEach(b => b[1]());
+  if (named) for (const [text, lx, ly, color] of labels) label(text, lx, ly, color);
+}
+
+// ---- view 5: the Milky Way. The picture is a disc 0.84 of its own width; the Sun sits below the centre.
+const SUNG = [0, 0.571], GAL_R = 0.42, GAL_SMALL = 0.045;
+const galPoint = (p, R, yaw, el) => [(p[0] * Math.cos(yaw) - p[1] * Math.sin(yaw)) * R, (p[0] * Math.sin(yaw) + p[1] * Math.cos(yaw)) * Math.max(Math.sin(el), 0.1) * R];
+function drawGalaxy(x, y, R, yaw, el) {
+  const flat = Math.max(Math.sin(el), 0.1);
+  ctx.save(); ctx.translate(x, y); ctx.globalAlpha = 1;
+  if (mw) { ctx.save(); ctx.scale(1, flat); ctx.rotate(yaw); ctx.drawImage(mw, -R / 0.84, -R / 0.84, 2 * R / 0.84, 2 * R / 0.84); ctx.restore(); }
+  const bulge = ctx.createRadialGradient(0, 0, 0, 0, 0, R * (mw ? 0.16 : 1)); // the central bulge is round, so it shows even edge-on
+  bulge.addColorStop(0, 'rgba(255,236,200,0.75)'); bulge.addColorStop(mw ? 0.4 : 0.15, 'rgba(255,214,160,0.25)'); bulge.addColorStop(1, 'rgba(255,214,160,0)');
+  ctx.scale(1, Math.max(flat, 0.55)); ctx.fillStyle = bulge; ctx.beginPath(); ctx.arc(0, 0, R * (mw ? 0.16 : 1), 0, 7); ctx.fill();
+  ctx.restore();
+}
+function sceneGalaxy(x, y, S) {
+  const R = GAL_R * base * S, q = galPoint(SUNG, R, cam.yaw, cam.el);
+  if (S < 16) drawGalaxy(x, y, R, cam.yaw, cam.el);
+  marker(x + q[0], y + q[1], readable(S) ? 'you are here' : '');
+  if (readable(S)) label('centre of the galaxy · 26,000 light-years from us', x, y + R * Math.max(Math.sin(cam.el), 0.1) + 16, T.dim, 'center');
+}
+
+// ---- view 6: the Milky Way and Andromeda
+const groupSpot = () => [-0.30 * W, 0.16 * H];
+function sceneGroup(x, y, S) {
+  const mwAt = [x - 0.30 * W * S, y + 0.16 * H * S], an = [x + 0.26 * W * S, y - 0.12 * H * S], tr = [x + 0.20 * W * S, y + 0.22 * H * S];
+  const Rm = GAL_SMALL * base * S, Ra = 0.115 * base * S, named = readable(S);
+  const blur = (bx, by, r, sq, rot) => {
+    ctx.save(); ctx.translate(bx, by); ctx.rotate(rot || 0); ctx.scale(1, sq || 1);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, 'rgba(215,225,255,0.75)'); g.addColorStop(0.35, 'rgba(190,205,255,0.25)'); g.addColorStop(1, 'rgba(190,205,255,0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); ctx.restore();
+  };
+  ctx.globalAlpha = 0.3; ctx.strokeStyle = T.dim; ctx.lineWidth = 1; ctx.setLineDash([3, 6]);
+  ctx.beginPath(); ctx.moveTo(mwAt[0], mwAt[1]); ctx.lineTo(an[0], an[1]); ctx.stroke(); ctx.setLineDash([]);
+  blur(mwAt[0] + 0.9 * Rm, mwAt[1] + 2.0 * Rm, Rm * 0.32); blur(mwAt[0] + 1.7 * Rm, mwAt[1] + 1.6 * Rm, Rm * 0.22); // the Magellanic Clouds
+  blur(tr[0], tr[1], 0.03 * base * S, 0.65, 0.5); // Triangulum
+  ctx.globalAlpha = 1;
+  if (andro) ctx.drawImage(andro, an[0] - Ra * 1.15, an[1] - Ra * 1.15, Ra * 2.3, Ra * 2.3); else blur(an[0], an[1], Ra, 0.35, 0.59);
+  drawGalaxy(mwAt[0], mwAt[1], Rm, cam.yaw, cam.el);
+  if (named) {
+    label('you are here', mwAt[0], mwAt[1] - Rm - 14, T.bone, 'center');
+    label('Magellanic Clouds', mwAt[0] + 2.3 * Rm, mwAt[1] + 2.1 * Rm, T.dim);
+    label('Andromeda', an[0], an[1] + Ra * 0.75 + 12, T.bone, 'center');
+    label('Triangulum', tr[0], tr[1] + 0.03 * base * S + 10, T.dim, 'center');
+    label('2.5 million light-years', (mwAt[0] + an[0]) / 2, (mwAt[1] + an[1]) / 2 - 10, T.dim, 'center');
+  }
+}
+
+// ---- nesting: from the city outward, SCENES[i] sits inside SCENES[i + 1] at CHILD_AT[i + 1], shrunk by ratio(i)
+const SCENES = [null, sceneCity, sceneGlobe, sceneMoon, sceneSolar, sceneGalaxy, sceneGroup], TOP = SCENES.length - 1;
+const CHILD_AT = [null, null, () => [HOMEPT[0] * GLOBE_R * base, HOMEPT[1] * GLOBE_R * base], () => [0, 0], earthOffset, () => galPoint(SUNG, GAL_R * base, cam.yaw, cam.el), groupSpot];
+const ratio = L => [0, 60, GLOBE_R * 60.3 / MOON_R, MOON_R * base / (13 * solarFit()), 90, GAL_R / GAL_SMALL][L];
+const WHERE = [
+  'One square kilometre. Every path here was worn by people on their way to something that felt urgent.',
+  'A region of a few million lives, each one the centre of its own story.',
+  'Everyone you have ever loved, and everyone you never met, is somewhere on this.',
+  'The farthest anyone has ever travelled from home is that small grey dot.',
+  'Eight worlds around one star. As far as we know, only one of them has anyone to notice.',
+  'A few hundred billion suns. Ours is the marked one, and nothing about it is special.',
+  'The light from Andromeda left 2.5 million years ago, before there was anyone to see it.',
+];
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = canvas.clientWidth; H = canvas.clientHeight; base = Math.min(W, H);
+  for (const c of [canvas, stars, layer, mapCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+  for (const g of [main, lctx, mctx]) g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  mapKey = ''; buildStars(); buildGlobe();
+}
+
+// draw one view, faded if needed by drawing it on a spare canvas first
+function paint(alpha, draw) {
+  if (alpha < 0.004) return;
+  if (alpha > 0.996) { draw(); main.globalAlpha = 1; return; }
+  lctx.clearRect(0, 0, W, H);
+  ctx = lctx; draw(); ctx = main; lctx.globalAlpha = 1;
+  main.globalAlpha = alpha; main.drawImage(layer, 0, 0, W, H); main.globalAlpha = 1;
+}
+
+const slider = document.getElementById('zoom'), where = document.getElementById('where'), stops = [...document.querySelectorAll('#stops button')];
+let shown = -1, lastMs = 0;
+function render(ms) {
+  const dt = Math.min(1000, ms - (lastMs || ms)); lastMs = ms; // animations keep their pace on slow screens
+  if (goalEl !== null) {
+    cam.el += (goalEl - cam.el) * (still ? 1 : 1 - Math.exp(-dt / 130));
+    if (Math.abs(goalEl - cam.el) < 0.002) { cam.el = goalEl; goalEl = null; }
+  }
+  if (goalLevel !== null) {
+    level += (goalLevel - level) * (still ? 1 : 1 - Math.exp(-dt / 320));
+    if (Math.abs(goalLevel - level) < 0.003) { level = goalLevel; goalLevel = null; }
+    slider.value = level;
+  }
+  const years = still ? 0.12 : ms / 60000, cx = W / 2, cy = H / 2;
+  const L = Math.min(TOP - 1, Math.floor(level)), f = level - L;
+
+  main.globalAlpha = 1; main.clearRect(0, 0, W, H);
+  main.globalAlpha = level > 4 ? Math.max(0.12, 1 - 0.88 * (level - 4)) : 1; // the night sky is our own galaxy, so it fades once we leave it
+  main.drawImage(stars, 0, 0, W, H); main.globalAlpha = 1;
+
+  if (L === 0) paint(1, () => sceneYard(f));
+  else if (f > 0.001) {
+    const K = ratio(L), S = Math.pow(K, 1 - f), a = CHILD_AT[L + 1](years), g = ease(f);
+    paint(ease((f - (L === 4 ? 0.4 : 0)) / 0.3), () => SCENES[L + 1](cx + a[0] * (g - S), cy + a[1] * (g - S), S, years));
+    paint(1 - ease((f - 0.7) / 0.3), () => SCENES[L](cx + a[0] * g, cy + a[1] * g, Math.pow(K, -f), years));
+  } else paint(1, () => SCENES[L](cx, cy, 1, years));
+
+  const near = Math.round(level);
+  if (near !== shown) { shown = near; where.textContent = WHERE[near]; stops.forEach((b, i) => b.setAttribute('aria-pressed', i === near)); }
+  if (!still) requestAnimationFrame(render);
+}
+function redraw() { if (still && W) render(0); }
+
+// ---- zooming
+slider.addEventListener('input', () => { level = +slider.value; goalLevel = null; redraw(); });
+stops.forEach((b, i) => b.addEventListener('click', () => { goalLevel = i; redraw(); }));
+const step = d => { goalLevel = Math.min(TOP, Math.max(0, (goalLevel ?? level) + d)); redraw(); };
+document.getElementById('zoom-in').addEventListener('click', () => step(-0.5));
+document.getElementById('zoom-out').addEventListener('click', () => step(0.5));
+
+// ---- turning the view
+const viewButtons = [...document.querySelectorAll('#views button')];
+const press = b => viewButtons.forEach(v => v.setAttribute('aria-pressed', v === b));
+viewButtons.forEach(b => b.addEventListener('click', () => { goalEl = +b.dataset.el; press(b); redraw(); }));
+const turn = (dx, dy) => {
+  cam.yaw -= dx; cam.el = Math.min(Math.PI / 2, Math.max(0.05, cam.el + dy));
+  goalEl = null; press(null); redraw();
+};
+let last = null;
+canvas.addEventListener('pointerdown', e => { last = [e.clientX, e.clientY]; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => { if (!last) return; turn((e.clientX - last[0]) * 0.008, (e.clientY - last[1]) * 0.006); last = [e.clientX, e.clientY]; });
+for (const type of ['pointerup', 'pointercancel']) canvas.addEventListener(type, () => { last = null; });
+canvas.addEventListener('keydown', e => {
+  const by = { ArrowLeft: [0.1, 0], ArrowRight: [-0.1, 0], ArrowUp: [0, 0.08], ArrowDown: [0, -0.08] }[e.key];
+  if (by) { e.preventDefault(); turn(...by); }
+});
+
+resize();
+addEventListener('resize', () => { resize(); redraw(); });
+still ? render(0) : requestAnimationFrame(render);
+</script>
+
+</body></html>
